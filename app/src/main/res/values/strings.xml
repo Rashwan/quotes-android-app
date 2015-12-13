@@ -5,4 +5,17 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <!-- nav_header_main strings-->
+    <string name="nav_header_big_text">Quotes App</string>
+    <string name="nav_header_small_text">quotesapp.com</string>
+
+    <!-- activity_main_drawer strings-->
+
+    <string name="nav_home_text">Home</string>
+    <string name="nav_quotes_text">All Quotes</string>
+    <string name="nav_fav_text">Favorites</string>
+    <string name="nav_categories_text">Categories</string>
+    <string name="nav_settings_text">Settings</string>
+    <string name="nav_about_text">About</string>
 </resources>

@@ -10,8 +10,6 @@ import com.android.people.quotesandroidapp.provider.categories.CategoriesColumns
 import com.android.people.quotesandroidapp.provider.categories.CategoriesContentValues;
 import com.android.people.quotesandroidapp.provider.quotes.QuotesColumns;
 import com.android.people.quotesandroidapp.provider.quotes.QuotesContentValues;
-import com.android.people.quotesandroidapp.provider.status.StatusColumns;
-import com.android.people.quotesandroidapp.provider.status.StatusContentValues;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,6 +23,12 @@ import java.io.InputStreamReader;
  */
 public class QuotesSQLiteOpenHelperCallbacks {
     private static final String TAG = QuotesSQLiteOpenHelperCallbacks.class.getSimpleName();
+    private enum Type {
+        QUOTES,
+        CATEGORIES
+    }
+    private static final String QUOTESFILENAME = "quotes.csv";
+    private static final String CATEGORIESFILENAME = "categories.csv";
 
     public void onOpen(final Context context, final SQLiteDatabase db) {
         if (BuildConfig.DEBUG) Log.d(TAG, "onOpen");
@@ -38,59 +42,55 @@ public class QuotesSQLiteOpenHelperCallbacks {
 
     public void onPostCreate(final Context context, final SQLiteDatabase db) {
         if (BuildConfig.DEBUG) Log.d(TAG, "onPostCreate");
-        // Insert your db creation code here. This is called after your tables are created.
 
-        CategoriesContentValues [] categoriesValues  = new CategoriesContentValues[2];
-        categoriesValues[0] = new CategoriesContentValues().putCategory("تربية");
-        categoriesValues[1] = new CategoriesContentValues().putCategory("ثقافة");
-        for (CategoriesContentValues categoriesValue : categoriesValues) {
-            db.insert(CategoriesColumns.TABLE_NAME, null, categoriesValue.values());
-        }
-
-        readCSVIntoTable(context,db);
-
-        StatusContentValues statusContentValues = new StatusContentValues();
-        statusContentValues.putQuoteid(1);
-        statusContentValues.putFavorite(true);
-        db.insert(StatusColumns.TABLE_NAME,null,statusContentValues.values());
+        // Add CSV filed to the DB
+        readCSVIntoTable(context,db,QUOTESFILENAME,Type.QUOTES);
+        readCSVIntoTable(context,db,CATEGORIESFILENAME,Type.CATEGORIES);
 
     }
 
     public void onUpgrade(final Context context, final SQLiteDatabase db, final int oldVersion, final int newVersion) {
         if (BuildConfig.DEBUG) Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
-        // Insert your upgrading code here.
+
+        // Drop quotes table then recreate it and populate it from csv
         db.execSQL("DROP TABLE IF EXISTS " + QuotesColumns.TABLE_NAME);
         db.execSQL(QuotesSQLiteOpenHelper.SQL_CREATE_TABLE_QUOTES);
-        readCSVIntoTable(context,db);
+        readCSVIntoTable(context,db,QUOTESFILENAME,Type.QUOTES);
     }
 
-    private void readCSVIntoTable(Context context,SQLiteDatabase db){
-        String mCSVfile = "quotes.csv";
+    /**
+     *
+     * @param context applicatopn context
+     * @param db  Database to operate on
+     * @param fileName  The name of the CSV file in the assets folder
+     * @param type  The table type either quotes or categories
+     */
+    private void readCSVIntoTable(Context context,SQLiteDatabase db,String fileName,Type type){
         AssetManager manager = context.getAssets();
-        InputStream inStream = null;
+        InputStream inStream;
         try {
-            inStream = manager.open(mCSVfile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            inStream = manager.open(fileName);
 
-        BufferedReader buffer = new BufferedReader(new InputStreamReader(inStream));
-        String reader = "";
-        db.beginTransaction();
+            BufferedReader buffer = new BufferedReader(new InputStreamReader(inStream));
+            String reader;
+            db.beginTransaction();
 
-        try {
-            while ((reader = buffer.readLine()) != null){
-                String[] rowData = reader.split(",");
-
-                QuotesContentValues values = new QuotesContentValues();
-                values.putContent(rowData[0]);
-                values.putCategoryid(Integer.valueOf(rowData[1]));
-                db.insert(QuotesColumns.TABLE_NAME,null,values.values());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
+                while ((reader = buffer.readLine()) != null){
+                    String[] rowData = reader.split(",");
+                    switch (type) {
+                        case QUOTES:
+                            QuotesContentValues quoteValues = new QuotesContentValues();
+                            quoteValues.putContent(rowData[0]);
+                            quoteValues.putCategoryid(Integer.valueOf(rowData[1]));
+                            db.insert(QuotesColumns.TABLE_NAME, null, quoteValues.values());
+                            break;
+                        case CATEGORIES:
+                            CategoriesContentValues categoryValues = new CategoriesContentValues();
+                            categoryValues.putCategory(rowData[0]);
+                            db.insert(CategoriesColumns.TABLE_NAME, null, categoryValues.values());
+                            break;
+                    }
+                }
             buffer.close();
         } catch (IOException e) {
             e.printStackTrace();
