@@ -1,13 +1,18 @@
 package com.android.people.quotesandroidapp.ui;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.android.people.quotesandroidapp.R;
+import com.android.people.quotesandroidapp.models.Quote;
+import com.android.people.quotesandroidapp.utils.DatabaseUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,7 +22,7 @@ import com.android.people.quotesandroidapp.R;
  * Use the {@link Home#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Home extends Fragment {
+public class Home extends Fragment implements View.OnClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -73,14 +78,40 @@ public class Home extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_home, container, false);
+
+        CardView firstQuoteCard = (CardView) rootView.findViewById(R.id.first_category_card);
+        CardView secondQuoteCard = (CardView) rootView.findViewById(R.id.second_category_card);
+        CardView favoriteQuoteCard = (CardView) rootView.findViewById(R.id.favorite_category_card);
+
+        TextView firstQuoteContent = (TextView) firstQuoteCard.findViewById(R.id.first_quote_body);
+        TextView secondQuoteContent = (TextView) secondQuoteCard.findViewById(R.id.second_quote_body);
+        TextView favoriteQuoteContent = (TextView) favoriteQuoteCard.findViewById(R.id.favorite_quote_body);
+
+        Quote firstQuote = DatabaseUtils.getRandomQuote(getActivity().getApplicationContext());
+        Quote secondQuote = DatabaseUtils.getRandomQuote(getActivity().getApplicationContext());
+
+        if (firstQuote != null) {
+            firstQuoteContent.setText(firstQuote.getContent());
+        }
+        if (secondQuote != null) {
+            secondQuoteContent.setText(secondQuote.getContent());
+        }
+
+
+        firstQuoteCard.setOnClickListener(this);
+        secondQuoteCard.setOnClickListener(this);
+        favoriteQuoteCard.setOnClickListener(this);
+
+        return rootView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    private void onCardPressed(int quoteID) {
         if (mListener != null) {
-            mListener.onQuoteClicked(uri);
+            mListener.onQuoteClicked(quoteID);
         }
     }
 
@@ -91,7 +122,7 @@ public class Home extends Fragment {
             mListener = (OnQuoteClickedListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnQuoteClickedListener");
         }
     }
 
@@ -99,6 +130,22 @@ public class Home extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.first_category_card:
+                Toast.makeText(getContext(), "Hi 1", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.second_category_card:
+                Toast.makeText(getContext(), "Hi 2", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.favorite_category_card:
+                Toast.makeText(getContext(), "Hi 3", Toast.LENGTH_LONG).show();
+                break;
+
+        }
     }
 
     /**
@@ -114,7 +161,7 @@ public class Home extends Fragment {
 
     public interface OnQuoteClickedListener {
         // TODO: Update argument type and name
-        void onQuoteClicked(Object quoteID);
+        void onQuoteClicked(int quoteID);
     }
 
 }

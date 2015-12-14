@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity
 
 
     @Override
-    public void onQuoteClicked(Object quoteID) {
+    public void onQuoteClicked(int quoteID) {
         // Do something
     }
 }
