@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/first_category_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top"
+    android:layout_margin="15dp"
+    android:clickable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    card_view:cardBackgroundColor="#D5DEFF"
+    card_view:cardCornerRadius="@dimen/cardview_default_radius"
+    card_view:cardElevation="@dimen/cardview_default_elevation">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/first_quote_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_margin="7dp"
+            android:text="التربية"
+            android:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/first_quote_body"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_margin="7dp"
+            android:text="إن الـعيون التي في طرفها حَوَرٌ قَـتَلْننا ثـم لـم يـحيين قتلانا."
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/first_fav"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="تفضيل" />
+
+    </LinearLayout>
+
+
+</android.support.v7.widget.CardView>
