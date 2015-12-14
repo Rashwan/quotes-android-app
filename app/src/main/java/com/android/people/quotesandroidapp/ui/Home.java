@@ -90,14 +90,20 @@ public class Home extends Fragment implements View.OnClickListener {
         TextView secondQuoteContent = (TextView) secondQuoteCard.findViewById(R.id.second_quote_body);
         TextView favoriteQuoteContent = (TextView) favoriteQuoteCard.findViewById(R.id.favorite_quote_body);
 
+        TextView firstQuoteCategory = (TextView) firstQuoteCard.findViewById(R.id.first_quote_title);
+        TextView secondQuoteCategory = (TextView) secondQuoteCard.findViewById(R.id.second_quote_title);
+
         Quote firstQuote = DatabaseUtils.getRandomQuote(getActivity().getApplicationContext());
         Quote secondQuote = DatabaseUtils.getRandomQuote(getActivity().getApplicationContext());
 
+
         if (firstQuote != null) {
             firstQuoteContent.setText(firstQuote.getContent());
+            firstQuoteCategory.setText(DatabaseUtils.getCategoryName(firstQuote.getCategoryID(), getActivity().getApplicationContext()));
         }
         if (secondQuote != null) {
             secondQuoteContent.setText(secondQuote.getContent());
+            secondQuoteCategory.setText(DatabaseUtils.getCategoryName(secondQuote.getCategoryID(), getActivity().getApplicationContext()));
         }
 
 
