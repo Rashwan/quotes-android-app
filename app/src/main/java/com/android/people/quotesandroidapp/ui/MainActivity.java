@@ -2,6 +2,8 @@ package com.android.people.quotesandroidapp.ui;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -9,11 +11,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.android.people.quotesandroidapp.R;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, Home.OnQuoteClickedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +34,13 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+        // Open Home fragment on launching app
+        Fragment fragment = Home.newInstance();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().add(R.id.main_activity_fragment_container, fragment).commit();
+
 
     }
 
@@ -69,25 +79,62 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+
+        Fragment fragment = null;
+        Class fragmentClass = null;
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_home) {
-            // Handle the camera action
-        } else if (id == R.id.nav_all_quotes) {
 
-        } else if (id == R.id.nav_favorites) {
+        switch (id) {
+            case R.id.nav_home:
+                fragmentClass = Home.class;
+                break;
+            case R.id.nav_all_quotes:
+                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_favorites:
+                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
 
-        } else if (id == R.id.nav_categories) {
+                break;
+            case R.id.nav_categories:
+                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
 
-        } else if (id == R.id.nav_settings) {
+                break;
+            case R.id.nav_settings:
+                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
 
-        } else if (id == R.id.nav_about) {
+                break;
+            case R.id.nav_about:
+                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
+
+                break;
+            default:
+                fragmentClass = Home.class;
+                break;
 
         }
+
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Insert the chosen fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.main_activity_fragment_container, fragment).commit();
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    @Override
+    public void onQuoteClicked(Object quoteID) {
+        // Do something
     }
 }
