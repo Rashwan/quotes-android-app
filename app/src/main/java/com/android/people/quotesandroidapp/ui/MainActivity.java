@@ -134,7 +134,8 @@ public class MainActivity extends AppCompatActivity
 
 
     @Override
-    public void onQuoteClicked(int quoteID) {
+    public void onQuoteClicked(long quoteID) {
         // Do something
+        Toast.makeText(this, "Quote preesed, Openning in separate Quote View", Toast.LENGTH_SHORT).show();
     }
 }

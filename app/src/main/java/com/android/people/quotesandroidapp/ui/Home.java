@@ -7,8 +7,8 @@ import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.people.quotesandroidapp.R;
 import com.android.people.quotesandroidapp.models.Quote;
@@ -37,6 +37,10 @@ public class Home extends Fragment implements View.OnClickListener {
     public Home() {
         // Required empty public constructor
     }
+
+    private Quote firstQuote;
+    private Quote secondQuote;
+    private Quote favoriteQuote;
 
     /**
      * Use this factory method to create a new instance of
@@ -93,8 +97,12 @@ public class Home extends Fragment implements View.OnClickListener {
         TextView firstQuoteCategory = (TextView) firstQuoteCard.findViewById(R.id.first_quote_title);
         TextView secondQuoteCategory = (TextView) secondQuoteCard.findViewById(R.id.second_quote_title);
 
-        Quote firstQuote = DatabaseUtils.getRandomQuote(getActivity().getApplicationContext());
-        Quote secondQuote = DatabaseUtils.getRandomQuote(getActivity().getApplicationContext());
+        firstQuote = DatabaseUtils.getRandomQuote(getActivity().getApplicationContext());
+        secondQuote = DatabaseUtils.getRandomQuote(getActivity().getApplicationContext());
+        favoriteQuote = DatabaseUtils.getRandomFavoriteQuote(getActivity().getApplicationContext());
+
+        Button first_fav = (Button) firstQuoteCard.findViewById(R.id.first_fav);
+        Button second_fav = (Button) secondQuoteCard.findViewById(R.id.second_fav);
 
 
         if (firstQuote != null) {
@@ -105,17 +113,24 @@ public class Home extends Fragment implements View.OnClickListener {
             secondQuoteContent.setText(secondQuote.getContent());
             secondQuoteCategory.setText(DatabaseUtils.getCategoryName(secondQuote.getCategoryID(), getActivity().getApplicationContext()));
         }
+        if (favoriteQuote != null) {
+            favoriteQuoteContent.setText(favoriteQuote.getContent());
+        }else{
+            favoriteQuoteContent.setText("No favorites yet!, Save some.");
+        }
 
 
         firstQuoteCard.setOnClickListener(this);
         secondQuoteCard.setOnClickListener(this);
         favoriteQuoteCard.setOnClickListener(this);
+        first_fav.setOnClickListener(this);
+        second_fav.setOnClickListener(this);
 
         return rootView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    private void onCardPressed(int quoteID) {
+    private void onCardPressed(long quoteID) {
         if (mListener != null) {
             mListener.onQuoteClicked(quoteID);
         }
@@ -142,14 +157,23 @@ public class Home extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.first_category_card:
-                Toast.makeText(getContext(), "Hi 1", Toast.LENGTH_LONG).show();
+                onCardPressed(firstQuote.getId());
                 break;
             case R.id.second_category_card:
-                Toast.makeText(getContext(), "Hi 2", Toast.LENGTH_LONG).show();
+                onCardPressed(secondQuote.getId());
                 break;
             case R.id.favorite_category_card:
-                Toast.makeText(getContext(), "Hi 3", Toast.LENGTH_LONG).show();
+                if (favoriteQuote!=null){
+                    onCardPressed(favoriteQuote.getId());
+                }
                 break;
+            case R.id.first_fav:
+                DatabaseUtils.addToFavorites(firstQuote.getId(), getActivity().getApplicationContext());
+                break;
+            case R.id.second_fav:
+                DatabaseUtils.addToFavorites(secondQuote.getId(), getActivity().getApplicationContext());
+                break;
+
 
         }
     }
@@ -167,7 +191,7 @@ public class Home extends Fragment implements View.OnClickListener {
 
     public interface OnQuoteClickedListener {
         // TODO: Update argument type and name
-        void onQuoteClicked(int quoteID);
+        void onQuoteClicked(long quoteID);
     }
 
 }
