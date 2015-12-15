@@ -52,4 +52,5 @@ public class AllQuotes extends Fragment {
 
         return rootView;
     }
+
 }
