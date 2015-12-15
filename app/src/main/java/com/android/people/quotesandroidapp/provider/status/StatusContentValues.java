@@ -1,11 +1,8 @@
 package com.android.people.quotesandroidapp.provider.status;
 
-import java.util.Date;
-
-import android.content.Context;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.android.people.quotesandroidapp.provider.base.AbstractContentValues;
@@ -42,7 +39,7 @@ public class StatusContentValues extends AbstractContentValues {
     /**
      * Id for the quote
      */
-    public StatusContentValues putQuoteid(int value) {
+    public StatusContentValues putQuoteid(long value) {
         mContentValues.put(StatusColumns.QUOTEID, value);
         return this;
     }

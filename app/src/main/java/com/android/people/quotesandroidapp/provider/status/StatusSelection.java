@@ -1,15 +1,13 @@
 package com.android.people.quotesandroidapp.provider.status;
 
-import java.util.Date;
-
-import android.content.Context;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
 import com.android.people.quotesandroidapp.provider.base.AbstractSelection;
-import com.android.people.quotesandroidapp.provider.quotes.*;
-import com.android.people.quotesandroidapp.provider.categories.*;
+import com.android.people.quotesandroidapp.provider.categories.CategoriesColumns;
+import com.android.people.quotesandroidapp.provider.quotes.QuotesColumns;
 
 /**
  * Selection for the {@code status} table.
@@ -80,32 +78,32 @@ public class StatusSelection extends AbstractSelection<StatusSelection> {
         return orderById(false);
     }
 
-    public StatusSelection quoteid(int... value) {
+    public StatusSelection quoteid(long... value) {
         addEquals(StatusColumns.QUOTEID, toObjectArray(value));
         return this;
     }
 
-    public StatusSelection quoteidNot(int... value) {
+    public StatusSelection quoteidNot(long... value) {
         addNotEquals(StatusColumns.QUOTEID, toObjectArray(value));
         return this;
     }
 
-    public StatusSelection quoteidGt(int value) {
+    public StatusSelection quoteidGt(long value) {
         addGreaterThan(StatusColumns.QUOTEID, value);
         return this;
     }
 
-    public StatusSelection quoteidGtEq(int value) {
+    public StatusSelection quoteidGtEq(long value) {
         addGreaterThanOrEquals(StatusColumns.QUOTEID, value);
         return this;
     }
 
-    public StatusSelection quoteidLt(int value) {
+    public StatusSelection quoteidLt(long value) {
         addLessThan(StatusColumns.QUOTEID, value);
         return this;
     }
 
-    public StatusSelection quoteidLtEq(int value) {
+    public StatusSelection quoteidLtEq(long value) {
         addLessThanOrEquals(StatusColumns.QUOTEID, value);
         return this;
     }
