@@ -3,18 +3,35 @@ package com.android.people.quotesandroidapp.ui;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.android.people.quotesandroidapp.R;
 import com.android.people.quotesandroidapp.models.Quote;
 import com.android.people.quotesandroidapp.utils.DatabaseUtils;
 
-public class Home extends Fragment implements View.OnClickListener {
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class Home extends Fragment {
+
+
+    @Bind(R.id.first_quote_body)
+    TextView firstQuoteContent;
+    @Bind(R.id.second_quote_body)
+    TextView secondQuoteContent;
+    @Bind(R.id.favorite_quote_body)
+    TextView favoriteQuoteContent;
+
+
+    @Bind(R.id.first_quote_title)
+    TextView firstQuoteCategory;
+    @Bind(R.id.second_quote_title)
+    TextView secondQuoteCategory;
+
 
     private OnQuoteClickedListener mListener;
 
@@ -47,23 +64,13 @@ public class Home extends Fragment implements View.OnClickListener {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
-        CardView firstQuoteCard = (CardView) rootView.findViewById(R.id.first_category_card);
-        CardView secondQuoteCard = (CardView) rootView.findViewById(R.id.second_category_card);
-        CardView favoriteQuoteCard = (CardView) rootView.findViewById(R.id.favorite_category_card);
+        // bind rootView
+        ButterKnife.bind(this, rootView);
 
-        TextView firstQuoteContent = (TextView) firstQuoteCard.findViewById(R.id.first_quote_body);
-        TextView secondQuoteContent = (TextView) secondQuoteCard.findViewById(R.id.second_quote_body);
-        TextView favoriteQuoteContent = (TextView) favoriteQuoteCard.findViewById(R.id.favorite_quote_body);
-
-        TextView firstQuoteCategory = (TextView) firstQuoteCard.findViewById(R.id.first_quote_title);
-        TextView secondQuoteCategory = (TextView) secondQuoteCard.findViewById(R.id.second_quote_title);
 
         mFirstQuote = DatabaseUtils.getRandomQuote(getActivity().getApplicationContext());
         mSecondQuote = DatabaseUtils.getRandomQuote(getActivity().getApplicationContext());
         mFavoriteQuote = DatabaseUtils.getRandomFavoriteQuote(getActivity().getApplicationContext());
-
-        Button first_fav = (Button) firstQuoteCard.findViewById(R.id.first_fav);
-        Button second_fav = (Button) secondQuoteCard.findViewById(R.id.second_fav);
 
 
         if (mFirstQuote != null) {
@@ -80,12 +87,6 @@ public class Home extends Fragment implements View.OnClickListener {
             favoriteQuoteContent.setText("No favorites yet!, Save some.");
         }
 
-
-        firstQuoteCard.setOnClickListener(this);
-        secondQuoteCard.setOnClickListener(this);
-        favoriteQuoteCard.setOnClickListener(this);
-        first_fav.setOnClickListener(this);
-        second_fav.setOnClickListener(this);
 
         return rootView;
     }
@@ -114,33 +115,41 @@ public class Home extends Fragment implements View.OnClickListener {
         mListener = null;
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.first_category_card:
-                onCardPressed(mFirstQuote.getId());
-                break;
-            case R.id.second_category_card:
-                onCardPressed(mSecondQuote.getId());
-                break;
-            case R.id.favorite_category_card:
-                if (mFavoriteQuote != null) {
-                    onCardPressed(mFavoriteQuote.getId());
-                }
-                break;
-            case R.id.first_fav:
-                DatabaseUtils.addToFavorites(mFirstQuote.getId(), getActivity().getApplicationContext());
-                break;
-            case R.id.second_fav:
-                DatabaseUtils.addToFavorites(mSecondQuote.getId(), getActivity().getApplicationContext());
-                break;
 
+    @OnClick(R.id.first_category_card)
+    public void onFirstCardClicked() {
+        onCardPressed(mFirstQuote.getId());
+    }
+
+
+    @OnClick(R.id.second_category_card)
+    public void onSecondCardClicked() {
+        onCardPressed(mSecondQuote.getId());
+    }
+
+
+    @OnClick(R.id.favorite_category_card)
+    public void onFavCardClicked() {
+        if (mFavoriteQuote != null) {
+            onCardPressed(mFavoriteQuote.getId());
         }
     }
 
+
+    @OnClick(R.id.first_fav)
+    public void onFirstFavClicked() {
+        DatabaseUtils.addToFavorites(mFirstQuote.getId(), getActivity().getApplicationContext());
+    }
+
+
+    @OnClick(R.id.second_fav)
+    public void onSecondFavClicked() {
+        DatabaseUtils.addToFavorites(mSecondQuote.getId(), getActivity().getApplicationContext());
+    }
+
+
     //      This interface must be implemented by activities that contain this fragment
     public interface OnQuoteClickedListener {
-        // TODO: Update argument type and name
         void onQuoteClicked(long quoteID);
     }
 
