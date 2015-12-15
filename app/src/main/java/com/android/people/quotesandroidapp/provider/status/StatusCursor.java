@@ -1,14 +1,11 @@
 package com.android.people.quotesandroidapp.provider.status;
 
-import java.util.Date;
-
 import android.database.Cursor;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.android.people.quotesandroidapp.provider.base.AbstractCursor;
-import com.android.people.quotesandroidapp.provider.quotes.*;
-import com.android.people.quotesandroidapp.provider.categories.*;
+import com.android.people.quotesandroidapp.provider.categories.CategoriesColumns;
+import com.android.people.quotesandroidapp.provider.quotes.QuotesColumns;
 
 /**
  * Cursor wrapper for the {@code status} table.
@@ -31,8 +28,8 @@ public class StatusCursor extends AbstractCursor implements StatusModel {
     /**
      * Id for the quote
      */
-    public int getQuoteid() {
-        Integer res = getIntegerOrNull(StatusColumns.QUOTEID);
+    public long getQuoteid() {
+        Long res = getLongOrNull(StatusColumns.QUOTEID);
         if (res == null)
             throw new NullPointerException("The value of 'quoteid' in the database was null, which is not allowed according to the model definition");
         return res;

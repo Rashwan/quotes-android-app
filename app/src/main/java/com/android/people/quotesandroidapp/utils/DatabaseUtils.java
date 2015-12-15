@@ -5,10 +5,15 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.android.people.quotesandroidapp.models.Quote;
+import com.android.people.quotesandroidapp.provider.categories.CategoriesColumns;
 import com.android.people.quotesandroidapp.provider.categories.CategoriesCursor;
 import com.android.people.quotesandroidapp.provider.categories.CategoriesSelection;
+import com.android.people.quotesandroidapp.provider.quotes.QuotesColumns;
 import com.android.people.quotesandroidapp.provider.quotes.QuotesCursor;
 import com.android.people.quotesandroidapp.provider.quotes.QuotesSelection;
+import com.android.people.quotesandroidapp.provider.status.StatusColumns;
+import com.android.people.quotesandroidapp.provider.status.StatusCursor;
+import com.android.people.quotesandroidapp.provider.status.StatusSelection;
 import com.android.people.quotesandroidapp.provider.status.StatusColumns;
 import com.android.people.quotesandroidapp.provider.status.StatusContentValues;
 import com.android.people.quotesandroidapp.provider.status.StatusCursor;
@@ -22,9 +27,7 @@ import java.util.Random;
 public class DatabaseUtils {
     public static Quote getRandomQuote(Context context) {
 
-        // TODO generate random quote in a more efficient way
-
-
+        // TODO generate random quote
         QuotesSelection where = new QuotesSelection();
         int max = where.count(context.getContentResolver());
 
@@ -67,6 +70,30 @@ public class DatabaseUtils {
 
         }
         return null;
+    }
+
+    public static QuotesCursor getAllQuotesWithCategories (Context context){
+        QuotesSelection where;
+        QuotesCursor quotesCursor;
+
+        where = new QuotesSelection();
+        String[] projection = {QuotesColumns._ID,QuotesColumns.CONTENT, CategoriesColumns.CATEGORY};
+        quotesCursor = where.query(context.getContentResolver(),projection);
+        return quotesCursor;
+
+    }
+
+    public static Boolean isQuoteFavorite(Context context,Long quoteId){
+        Boolean isFavorite = false;
+        String[] projection = {StatusColumns.FAVORITE};
+        StatusSelection where = new StatusSelection();
+
+        StatusCursor statusCursor = where.quoteid(quoteId).query(context.getContentResolver(), projection);
+
+        if (statusCursor != null && statusCursor.moveToNext()){
+            isFavorite = statusCursor.getFavorite();
+        }
+        return isFavorite;
     }
 
     public static void addToFavorites(long quoteID, Context context) {
