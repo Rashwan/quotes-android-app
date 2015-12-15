@@ -1,6 +1,7 @@
 package com.android.people.quotesandroidapp.utils;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -11,9 +12,6 @@ import com.android.people.quotesandroidapp.provider.categories.CategoriesSelecti
 import com.android.people.quotesandroidapp.provider.quotes.QuotesColumns;
 import com.android.people.quotesandroidapp.provider.quotes.QuotesCursor;
 import com.android.people.quotesandroidapp.provider.quotes.QuotesSelection;
-import com.android.people.quotesandroidapp.provider.status.StatusColumns;
-import com.android.people.quotesandroidapp.provider.status.StatusCursor;
-import com.android.people.quotesandroidapp.provider.status.StatusSelection;
 import com.android.people.quotesandroidapp.provider.status.StatusColumns;
 import com.android.people.quotesandroidapp.provider.status.StatusContentValues;
 import com.android.people.quotesandroidapp.provider.status.StatusCursor;
@@ -96,18 +94,29 @@ public class DatabaseUtils {
         return isFavorite;
     }
 
-    public static void addToFavorites(long quoteID, Context context) {
+    public static Uri addToFavorites(long quoteID, Context context) {
 
         StatusContentValues contentValues = new StatusContentValues();
         contentValues.putQuoteid((int) quoteID)
                 .putFavorite(true);
 
-        context.getContentResolver().insert(StatusColumns.CONTENT_URI, contentValues.values());
+        Uri result = context.getContentResolver().insert(StatusColumns.CONTENT_URI, contentValues.values());
         Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show();
 
-        Log.i("Fav_Q", "saved id is = " + quoteID);
+        return result;
 
 
+    }
+
+    public static int removeFromFavorites(long quoteID, Context context) {
+
+        StatusSelection where = new StatusSelection();
+
+        int rowsDeleted = where.quoteid(quoteID).delete(context);
+
+        Toast.makeText(context, "removed from Favorites", Toast.LENGTH_SHORT).show();
+
+        return rowsDeleted;
     }
 
     public static Quote getRandomFavoriteQuote(Context context) {
