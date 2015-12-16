@@ -1,8 +1,8 @@
 package com.android.people.quotesandroidapp.utils;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.android.people.quotesandroidapp.models.Quote;
@@ -25,20 +25,20 @@ import java.util.Random;
 public class DatabaseUtils {
     public static Quote getRandomQuote(Context context) {
 
-        // TODO generate random quote
         QuotesSelection where = new QuotesSelection();
+        String[] projection = QuotesColumns.ALL_COLUMNS;
+
         int max = where.count(context.getContentResolver());
 
         Random rand = new Random();
         int id = rand.nextInt(max) + 1;
 
-        where.id(id);
-        QuotesCursor quoteCursor = where.query(context);
+        where.id((long) id);
+        QuotesCursor quoteCursor = where.query(context, projection);
 
-        if (quoteCursor.moveToNext()) {
 
+        if (quoteCursor != null && quoteCursor.moveToNext()) {
             return new Quote(quoteCursor.getId(), quoteCursor.getContent(), quoteCursor.getCategoryid());
-
         }
         return null;
 
@@ -47,8 +47,12 @@ public class DatabaseUtils {
     public static Quote getSpecificQuote(long quoteID, Context context) {
 
         QuotesSelection where = new QuotesSelection();
+        String[] projection = QuotesColumns.ALL_COLUMNS;
+
         where.id(quoteID);
-        QuotesCursor quoteCursor = where.query(context);
+
+        QuotesCursor quoteCursor = where.query(context, projection);
+
 
         if (quoteCursor.moveToNext()) {
             return new Quote(quoteCursor.getId(), quoteCursor.getContent(), quoteCursor.getCategoryid());
@@ -63,32 +67,32 @@ public class DatabaseUtils {
         CategoriesCursor categoryCursor = where.query(context);
 
         if (categoryCursor.moveToNext()) {
-
             return categoryCursor.getCategory();
-
         }
         return null;
     }
 
-    public static QuotesCursor getAllQuotesWithCategories (Context context){
+    public static QuotesCursor getAllQuotesWithCategories(Context context) {
         QuotesSelection where;
         QuotesCursor quotesCursor;
 
         where = new QuotesSelection();
-        String[] projection = {QuotesColumns._ID,QuotesColumns.CONTENT, CategoriesColumns.CATEGORY};
-        quotesCursor = where.query(context.getContentResolver(),projection);
+        String[] projection = {QuotesColumns._ID, QuotesColumns.CONTENT, CategoriesColumns.CATEGORY};
+        quotesCursor = where.query(context.getContentResolver(), projection);
+
         return quotesCursor;
 
     }
 
-    public static Boolean isQuoteFavorite(Context context,Long quoteId){
+    public static Boolean isQuoteFavorite(Context context, Long quoteId) {
+
         Boolean isFavorite = false;
         String[] projection = {StatusColumns.FAVORITE};
         StatusSelection where = new StatusSelection();
 
         StatusCursor statusCursor = where.quoteid(quoteId).query(context.getContentResolver(), projection);
 
-        if (statusCursor != null && statusCursor.moveToNext()){
+        if (statusCursor != null && statusCursor.moveToNext()) {
             isFavorite = statusCursor.getFavorite();
         }
         return isFavorite;
@@ -97,7 +101,7 @@ public class DatabaseUtils {
     public static Uri addToFavorites(long quoteID, Context context) {
 
         StatusContentValues contentValues = new StatusContentValues();
-        contentValues.putQuoteid((int) quoteID)
+        contentValues.putQuoteid(quoteID)
                 .putFavorite(true);
 
         Uri result = context.getContentResolver().insert(StatusColumns.CONTENT_URI, contentValues.values());
@@ -119,55 +123,40 @@ public class DatabaseUtils {
         return rowsDeleted;
     }
 
+
     public static Quote getRandomFavoriteQuote(Context context) {
 
-        // TODO implement this in a more efficient way
+        int favoritesCount = getFavoritesCount(context);
+        Toast.makeText(context, "favorites quotes count is " + favoritesCount, Toast.LENGTH_SHORT).show();
 
-        StatusSelection where = new StatusSelection();
-        int max = where.count(context.getContentResolver());
+        if (favoritesCount > 0) {
 
+            Cursor c = context.getContentResolver().query(StatusColumns.CONTENT_URI,
+                    null, null, null, "RANDOM() LIMIT 1");
 
-//        String[] projection = {StatusColumns.QUOTEID,QuotesColumns.CONTENT,QuotesColumns.CATEGORYID};
-//        StatusSelection where = new StatusSelection();
-//        where.query(context, projection);
-//
-//        int max = where.count(context.getContentResolver());
+            if (c != null && c.moveToNext()) {
+                Long quoteID = Long.valueOf(c.getString(1));
 
-        Toast.makeText(context, "favorites quotes count is " + max, Toast.LENGTH_SHORT).show();
+                c.close();
 
-        if (max > 0) {
-            Random rand = new Random();
-            int id = rand.nextInt(max) + 1;
-            Log.i("Fav_Q", "random id to get is = " + id);
+                return getSpecificQuote(quoteID, context);
 
-            where.id(id);
-            StatusCursor statusCursor = where.query(context);
-
-
-            if (statusCursor.moveToNext()) {
-                Log.i("Fav_Q", "chosen quoteID to get is = " + statusCursor.getQuoteid());
-
-                QuotesSelection where2 = new QuotesSelection();
-                where2.id(statusCursor.getQuoteid());
-                QuotesCursor quoteCursor = where2.query(context);
-
-
-                if (quoteCursor.moveToNext()) {
-                    Log.i("Fav_Q", "id is = " + quoteCursor.getId());
-                    Log.i("Fav_Q", "quote is = " + quoteCursor.getContent());
-                    Log.i("Fav_Q", "category id is = " + quoteCursor.getCategoryid());
-
-                    return new Quote(quoteCursor.getId(), quoteCursor.getContent(), quoteCursor.getCategoryid());
-                }
             }
 
+
         }
-
-
         return null;
+    }
+
+    public static int getFavoritesCount(Context context) {
+        StatusSelection where = new StatusSelection();
+        return where.count(context.getContentResolver());
 
     }
+
+
 }
+
 
 
 

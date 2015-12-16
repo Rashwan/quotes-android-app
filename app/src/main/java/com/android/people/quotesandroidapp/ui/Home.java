@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.android.people.quotesandroidapp.R;
@@ -31,6 +32,13 @@ public class Home extends Fragment {
     TextView firstQuoteCategory;
     @Bind(R.id.second_quote_title)
     TextView secondQuoteCategory;
+
+    @Bind(R.id.first_fav)
+    Button first_fav;
+
+
+    @Bind(R.id.second_fav)
+    Button second_fav;
 
 
     private OnQuoteClickedListener mListener;
@@ -73,13 +81,19 @@ public class Home extends Fragment {
         mFavoriteQuote = DatabaseUtils.getRandomFavoriteQuote(getActivity().getApplicationContext());
 
 
+
         if (mFirstQuote != null) {
             firstQuoteContent.setText(mFirstQuote.getContent());
             firstQuoteCategory.setText(DatabaseUtils.getCategoryName(mFirstQuote.getCategoryID(), getActivity().getApplicationContext()));
+            setInitialFavoriteState(mFirstQuote.getId(), first_fav);
+
         }
         if (mSecondQuote != null) {
             secondQuoteContent.setText(mSecondQuote.getContent());
             secondQuoteCategory.setText(DatabaseUtils.getCategoryName(mSecondQuote.getCategoryID(), getActivity().getApplicationContext()));
+            setInitialFavoriteState(mSecondQuote.getId(), second_fav);
+
+
         }
         if (mFavoriteQuote != null) {
             favoriteQuoteContent.setText(mFavoriteQuote.getContent());
@@ -138,13 +152,13 @@ public class Home extends Fragment {
 
     @OnClick(R.id.first_fav)
     public void onFirstFavClicked() {
-        DatabaseUtils.addToFavorites(mFirstQuote.getId(), getActivity().getApplicationContext());
+        changeFavoriteState(mFirstQuote.getId(), first_fav);
     }
 
 
     @OnClick(R.id.second_fav)
     public void onSecondFavClicked() {
-        DatabaseUtils.addToFavorites(mSecondQuote.getId(), getActivity().getApplicationContext());
+        changeFavoriteState(mSecondQuote.getId(), second_fav);
     }
 
 
@@ -152,5 +166,37 @@ public class Home extends Fragment {
     public interface OnQuoteClickedListener {
         void onQuoteClicked(long quoteID);
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
+
+
+    private void changeFavoriteState(Long quoteID, Button b) {
+
+        //If the quote is already favorited remove it otherwise add it
+        if (DatabaseUtils.isQuoteFavorite(getActivity().getApplicationContext(), quoteID)) {
+            DatabaseUtils.removeFromFavorites(quoteID, getActivity().getApplicationContext());
+            b.setText("Add to favorites");
+        } else {
+            DatabaseUtils.addToFavorites(quoteID, getActivity().getApplicationContext());
+            b.setText("Favorited");
+        }
+
+    }
+
+    private void setInitialFavoriteState(Long quoteID, Button b) {
+
+
+        if (DatabaseUtils.isQuoteFavorite(getActivity().getApplicationContext(), quoteID)) {
+            b.setText("Favorited");
+        } else {
+            b.setText("Add to favorite");
+        }
+
+    }
+
 
 }
