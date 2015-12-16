@@ -1,5 +1,6 @@
 package com.android.people.quotesandroidapp.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -135,7 +136,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onQuoteClicked(long quoteID) {
+
+        Intent intent = new Intent(this, SingleQuoteActivity.class);
+        intent.putExtra("QUOTE_ID", quoteID);
+        startActivity(intent);
+
         // Do something
-        Toast.makeText(this, "Quote preesed, Openning in separate Quote View", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Quote pressed, Opening in separate Quote View", Toast.LENGTH_SHORT).show();
     }
 }
