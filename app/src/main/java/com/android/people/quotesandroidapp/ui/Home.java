@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.android.people.quotesandroidapp.R;
 import com.android.people.quotesandroidapp.models.Quote;
 import com.android.people.quotesandroidapp.utils.DatabaseUtils;
+import com.android.people.quotesandroidapp.utils.QuoteClickListener;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -41,7 +42,7 @@ public class Home extends Fragment {
     Button second_fav;
 
 
-    private OnQuoteClickedListener mListener;
+    private QuoteClickListener mListener;
 
     public Home() {
     }
@@ -115,8 +116,8 @@ public class Home extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnQuoteClickedListener) {
-            mListener = (OnQuoteClickedListener) context;
+        if (context instanceof QuoteClickListener) {
+            mListener = (QuoteClickListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnQuoteClickedListener");
@@ -161,11 +162,6 @@ public class Home extends Fragment {
         changeFavoriteState(mSecondQuote.getId(), second_fav);
     }
 
-
-    //      This interface must be implemented by activities that contain this fragment
-    public interface OnQuoteClickedListener {
-        void onQuoteClicked(long quoteID);
-    }
 
     @Override
     public void onDestroyView() {

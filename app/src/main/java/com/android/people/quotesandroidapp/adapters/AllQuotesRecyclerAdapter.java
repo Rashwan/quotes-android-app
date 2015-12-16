@@ -1,8 +1,8 @@
 package com.android.people.quotesandroidapp.adapters;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +14,29 @@ import com.android.people.quotesandroidapp.provider.quotes.QuotesCursor;
 import com.android.people.quotesandroidapp.utils.DatabaseUtils;
 import com.android.people.quotesandroidapp.utils.QuotesCursorRecyclerAdapter;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * Created by rashwan on 12/14/15.
  */
 public class AllQuotesRecyclerAdapter extends QuotesCursorRecyclerAdapter<AllQuotesRecyclerAdapter.SimpleViewHolder>{
 
-    Context mContext;
+    public Context mContext;
+
+    private static OnCardClickListener mListener;
+
+
+    public interface OnCardClickListener{
+        void onFavoriteClicked(Button fav,int position);
+        void onContentClicked(int position);
+    }
+
+
+    public void setOnCardClickListener(OnCardClickListener listener){
+        mListener = listener;
+    }
+
     public AllQuotesRecyclerAdapter(Context context,QuotesCursor c){
         super(c);
         mContext = context;
@@ -33,16 +50,12 @@ public class AllQuotesRecyclerAdapter extends QuotesCursorRecyclerAdapter<AllQuo
         Boolean quoteFavorite;
         Long quoteId = cursor.getId();
 
-        TextView cardContent  =holder.cardContent;
-        TextView cardCategory = holder.cardCategory;
-        Button cardFavorite = holder.cardFavorite;
-
         //Check if the quote is favorite to set the Button state
         quoteFavorite = DatabaseUtils.isQuoteFavorite(mContext,quoteId);
 
-        cardContent.setText(quoteContent);
-        cardCategory.setText(quoteCategory);
-        cardFavorite.setText(quoteFavorite + "");
+        holder.cardContent.setText(quoteContent);
+        holder.cardCategory.setText(quoteCategory);
+        holder.cardFavorite.setText(quoteFavorite.toString());
     }
 
 
@@ -54,51 +67,36 @@ public class AllQuotesRecyclerAdapter extends QuotesCursorRecyclerAdapter<AllQuo
         LayoutInflater inflater = LayoutInflater.from(context);
         View contactView = inflater.inflate(R.layout.home_first_category_card, parent, false);
 
-        //Return a new ViewHolder With implementation for each item's in the card click listener
-        SimpleViewHolder VH = new SimpleViewHolder(contactView, new SimpleViewHolder.VHClicks() {
-            @Override
-            public void onFavorite(Button fav,int position) {
-                Long quoteId  =getItemId(position);
-
-                //If the quote is already favorited remove it otherwise add it
-                if (DatabaseUtils.isQuoteFavorite(context,quoteId)){
-                    DatabaseUtils.removeFromFavorites(quoteId,context);
-                }else {
-                    DatabaseUtils.addToFavorites(quoteId, context);
-                }
-                notifyItemChanged(position);
-            }
-        });
-        return VH;
+        return new SimpleViewHolder(contactView);
     }
 
 
     public static class SimpleViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        public TextView cardCategory;
-        public TextView cardContent;
-        public Button cardFavorite;
-        public VHClicks mListener;
+        @Bind(R.id.first_quote_title) TextView cardCategory;
+        @Bind(R.id.first_quote_body) TextView cardContent;
+        @Bind(R.id.first_fav) Button cardFavorite;
 
-        public SimpleViewHolder(View itemView,VHClicks listener) {
+        public SimpleViewHolder(View itemView) {
             super(itemView);
-            mListener = listener;
+            ButterKnife.bind(this, itemView);
 
-            cardCategory = (TextView) itemView.findViewById(R.id.first_quote_title);
-            cardContent = (TextView) itemView.findViewById(R.id.first_quote_body);
-            cardFavorite = (Button) itemView.findViewById(R.id.first_fav);
+            //Set OnClickListeners for each item in the card
             cardFavorite.setOnClickListener(this);
+            itemView.setOnClickListener(this);
         }
 
+        //call the listener method based on the type of the clicked item
         @Override
         public void onClick(View v) {
-            if (v instanceof Button){
-                mListener.onFavorite((Button) v,getLayoutPosition());
-            }else {
-                Log.d("CLICK","ONTHECARD");
+            if (mListener != null) {
+
+                if (v instanceof Button) {
+                    mListener.onFavoriteClicked((Button) v, getLayoutPosition());
+
+                }else if (v instanceof CardView) {
+                    mListener.onContentClicked(getLayoutPosition());
+                }
             }
-        }
-        public interface VHClicks{
-             void onFavorite(Button fav,int position);
         }
     }
 }

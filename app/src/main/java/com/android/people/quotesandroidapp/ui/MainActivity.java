@@ -15,9 +15,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.android.people.quotesandroidapp.R;
+import com.android.people.quotesandroidapp.utils.QuoteClickListener;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, Home.OnQuoteClickedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, QuoteClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,15 +134,10 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-
     @Override
     public void onQuoteClicked(long quoteID) {
-
         Intent intent = new Intent(this, SingleQuoteActivity.class);
         intent.putExtra("QUOTE_ID", quoteID);
         startActivity(intent);
-
-        // Do something
-        Toast.makeText(this, "Quote pressed, Opening in separate Quote View", Toast.LENGTH_SHORT).show();
     }
 }
