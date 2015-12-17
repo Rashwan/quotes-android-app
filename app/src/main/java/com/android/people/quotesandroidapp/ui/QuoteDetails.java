@@ -1,7 +1,9 @@
 package com.android.people.quotesandroidapp.ui;
 
 
+import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,18 +16,23 @@ import com.android.people.quotesandroidapp.utils.DatabaseUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link QuoteDetails#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class QuoteDetails extends Fragment {
 
     private static final String QUOTE_ID_KEY = "quoteID";
 
     private Long mQuoteID;
+    private Quote mSingleQuote;
 
+    @Bind(R.id.single_quote_content)
+    TextView singleQuote;
+
+    @Bind(R.id.single_quote_category)
+    TextView singleQuoteCategory;
+
+    @Bind(R.id.fav_single_quote)
+    FloatingActionButton fab;
 
     public QuoteDetails() {
     }
@@ -46,22 +53,49 @@ public class QuoteDetails extends Fragment {
         }
     }
 
-    @Bind(R.id.single_quote)
-    TextView singleQuote;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_quote_details, container, false);
 
+        final Context context = getActivity().getApplicationContext();
+
         ButterKnife.bind(this, rootView);
 
-        Quote quote = DatabaseUtils.getSpecificQuote(mQuoteID, getActivity().getApplicationContext());
-        // Inflate the layout for this fragment
-        singleQuote.setText(quote.getContent());
+        mSingleQuote = DatabaseUtils.getSpecificQuote(mQuoteID, context);
+
+        if (mSingleQuote != null) {
+            singleQuote.setText(mSingleQuote.getContent());
+            singleQuoteCategory.setText(DatabaseUtils.getCategoryName(mSingleQuote.getCategoryID(), context));
+
+            if (DatabaseUtils.isQuoteFavorite(context, mSingleQuote.getId())) {
+                fab.setImageDrawable(getActivity().getDrawable(R.drawable.ic_heart_filled));
+            }
+        }
 
 
         return rootView;
+    }
+
+    @OnClick(R.id.fav_single_quote)
+    public void onFabClicked() {
+        if (mSingleQuote != null) {
+            changeFabState();
+        }
+    }
+
+    private void changeFabState() {
+
+        //If the quote is already favorited remove it otherwise add it
+        if (DatabaseUtils.isQuoteFavorite(getActivity().getApplicationContext(), mSingleQuote.getId())) {
+            DatabaseUtils.removeFromFavorites(mSingleQuote.getId(), getActivity().getApplicationContext());
+            fab.setImageDrawable(getActivity().getDrawable(R.drawable.ic_heart_outline));
+        } else {
+            DatabaseUtils.addToFavorites(mSingleQuote.getId(), getActivity().getApplicationContext());
+            fab.setImageDrawable(getActivity().getDrawable(R.drawable.ic_heart_filled));
+        }
+
     }
 
     @Override
