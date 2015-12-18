@@ -70,7 +70,7 @@ public class AllQuotesRecyclerAdapter extends BaseCursorRecyclerAdapter<AllQuote
 
 
     public static class SimpleViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        @Bind(R.id.first_quote_title) TextView cardCategory;
+        @Bind(R.id.first_quote_category) TextView cardCategory;
         @Bind(R.id.first_quote_body) TextView cardContent;
         @Bind(R.id.first_fav) Button cardFavorite;
 
