@@ -14,10 +14,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.android.people.quotesandroidapp.R;
+import com.android.people.quotesandroidapp.utils.CategoryClickListener;
 import com.android.people.quotesandroidapp.utils.QuoteClickListener;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, QuoteClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, QuoteClickListener, CategoryClickListener {
+
+    private FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,7 @@ public class MainActivity extends AppCompatActivity
 
         // Open Home fragment on launching app
         Fragment fragment = Home.newInstance();
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().add(R.id.main_activity_fragment_container, fragment).commit();
 
 
@@ -125,7 +128,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Insert the chosen fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         if (fragment != null) {
             fragmentManager.beginTransaction().replace(R.id.main_activity_fragment_container, fragment).commit();
         }
@@ -141,5 +144,12 @@ public class MainActivity extends AppCompatActivity
         Intent intent = new Intent(this, SingleQuoteActivity.class);
         intent.putExtra("QUOTE_ID", quoteID);
         startActivity(intent);
+    }
+
+    @Override
+    public void onCategoryClicked(int catID) {
+        Fragment fragment = QuotesListFragment.newInstance(QuotesListFragment.TYPE_CATEGORIES, catID);
+        fragmentManager.beginTransaction().replace(R.id.main_activity_fragment_container, fragment).commit();
+
     }
 }

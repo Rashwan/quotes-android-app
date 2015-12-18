@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.android.people.quotesandroidapp.R;
 import com.android.people.quotesandroidapp.models.Quote;
+import com.android.people.quotesandroidapp.utils.CategoryClickListener;
 import com.android.people.quotesandroidapp.utils.DatabaseUtils;
 import com.android.people.quotesandroidapp.utils.QuoteClickListener;
 
@@ -29,9 +30,9 @@ public class Home extends Fragment {
     TextView favoriteQuoteContent;
 
 
-    @Bind(R.id.first_quote_title)
+    @Bind(R.id.first_quote_category)
     TextView firstQuoteCategory;
-    @Bind(R.id.second_quote_title)
+    @Bind(R.id.second_quote_category)
     TextView secondQuoteCategory;
 
     @Bind(R.id.first_fav)
@@ -42,7 +43,8 @@ public class Home extends Fragment {
     Button second_fav;
 
 
-    private QuoteClickListener mListener;
+    private QuoteClickListener mQuoteListener;
+    private CategoryClickListener mCatListener;
 
     public Home() {
     }
@@ -82,7 +84,6 @@ public class Home extends Fragment {
         mFavoriteQuote = DatabaseUtils.getRandomFavoriteQuote(getActivity().getApplicationContext());
 
 
-
         if (mFirstQuote != null) {
             firstQuoteContent.setText(mFirstQuote.getContent());
             firstQuoteCategory.setText(DatabaseUtils.getCategoryName(mFirstQuote.getCategoryID(), getActivity().getApplicationContext()));
@@ -108,8 +109,8 @@ public class Home extends Fragment {
 
 
     private void onCardPressed(long quoteID) {
-        if (mListener != null) {
-            mListener.onQuoteClicked(quoteID);
+        if (mQuoteListener != null) {
+            mQuoteListener.onQuoteClicked(quoteID);
         }
     }
 
@@ -117,17 +118,26 @@ public class Home extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof QuoteClickListener) {
-            mListener = (QuoteClickListener) context;
+            mQuoteListener = (QuoteClickListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnQuoteClickedListener");
+                    + " must implement OnQuoteClickListener");
         }
+
+        if (context instanceof CategoryClickListener) {
+            mCatListener = (CategoryClickListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnCategoryClickListener");
+        }
+
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        mQuoteListener = null;
+        mCatListener = null;
     }
 
 
@@ -194,5 +204,21 @@ public class Home extends Fragment {
 
     }
 
+    @OnClick(R.id.first_quote_category)
+    public void onFirstCatClicked() {
+        openCategoryQuotes(mFirstQuote.getCategoryID());
+    }
 
+    @OnClick(R.id.second_quote_category)
+    public void onSecondCatClicked() {
+        openCategoryQuotes(mSecondQuote.getCategoryID());
+    }
+
+    private void openCategoryQuotes(long catID) {
+        if (mCatListener != null) {
+            mCatListener.onCategoryClicked((int) catID);
+        }
+
+    }
 }
+
