@@ -45,15 +45,12 @@ public class DatabaseUtils {
     }
 
     public static Quote getSpecificQuote(long quoteID, Context context) {
-
         QuotesSelection where = new QuotesSelection();
         String[] projection = QuotesColumns.ALL_COLUMNS;
 
         where.id(quoteID);
 
         QuotesCursor quoteCursor = where.query(context, projection);
-
-
         if (quoteCursor.moveToNext()) {
             return new Quote(quoteCursor.getId(), quoteCursor.getContent(), quoteCursor.getCategoryid());
         }
@@ -128,7 +125,6 @@ public class DatabaseUtils {
 
         int favoritesCount = getFavoritesCount(context);
         Toast.makeText(context, "favorites quotes count is " + favoritesCount, Toast.LENGTH_SHORT).show();
-
         if (favoritesCount > 0) {
 
             Cursor c = context.getContentResolver().query(StatusColumns.CONTENT_URI,
@@ -136,14 +132,9 @@ public class DatabaseUtils {
 
             if (c != null && c.moveToNext()) {
                 Long quoteID = Long.valueOf(c.getString(1));
-
                 c.close();
-
                 return getSpecificQuote(quoteID, context);
-
             }
-
-
         }
         return null;
     }
@@ -151,9 +142,30 @@ public class DatabaseUtils {
     public static int getFavoritesCount(Context context) {
         StatusSelection where = new StatusSelection();
         return where.count(context.getContentResolver());
-
     }
 
+    public static CategoriesCursor getAllCategories(Context context){
+        CategoriesSelection where;
+        CategoriesCursor categoriesCursor;
+
+        where = new CategoriesSelection();
+        String[] projection = CategoriesColumns.ALL_COLUMNS;
+        categoriesCursor = where.query(context.getContentResolver(), projection);
+
+        return categoriesCursor;
+    }
+
+    public static QuotesCursor getQuotesForACategory(Context context,int categoryId){
+        QuotesCursor quotesCursor ;
+        QuotesSelection where = new QuotesSelection();
+
+        where.categoryid(categoryId);
+        String[] projection = {QuotesColumns._ID, QuotesColumns.CONTENT, CategoriesColumns.CATEGORY};
+        quotesCursor = where.query(context,projection);
+
+        return quotesCursor;
+
+    }
 
 }
 

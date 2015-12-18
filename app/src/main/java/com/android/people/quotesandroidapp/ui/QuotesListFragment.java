@@ -2,7 +2,6 @@ package com.android.people.quotesandroidapp.ui;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,35 +19,49 @@ import com.android.people.quotesandroidapp.utils.QuoteClickListener;
 /**
  * Created by rashwan on 12/14/15.
  */
-public class AllQuotes extends Fragment {
+public class QuotesListFragment extends Fragment {
 
-    QuotesCursor quotesCursor;
-    QuoteClickListener mListener;
+    private static final String TAG = QuotesListFragment.class.getSimpleName();
+    private QuotesCursor quotesCursor;
+    private QuoteClickListener mListener;
+    public static final int TYPE_QUOTES = 1;
+    public static final int TYPE_CATEGORIES = 2;
 
 
-    public AllQuotes(){}
 
-    public static AllQuotes newInstance() {
+    public QuotesListFragment(){}
+
+    public static QuotesListFragment newInstance() {
+
+        return new QuotesListFragment();
+    }
+
+    public static QuotesListFragment newInstance(int type,int categoryId) {
 
         Bundle args = new Bundle();
-
-        AllQuotes fragment = new AllQuotes();
+        QuotesListFragment fragment = new QuotesListFragment();
+        args.putInt("Type",type);
+        args.putInt("CatId",categoryId);
         fragment.setArguments(args);
         return fragment;
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null){
 
-        //Query DB for all available quotes
-        quotesCursor = DatabaseUtils.getAllQuotesWithCategories(getActivity());
-
+            if (getArguments().getInt("Type") == TYPE_CATEGORIES && getArguments().containsKey("CatId")){
+                quotesCursor = DatabaseUtils.getQuotesForACategory(getActivity(),getArguments().getInt("CatId", 1));
+            }
+        }else {
+            quotesCursor = DatabaseUtils.getAllQuotesWithCategories(getActivity());
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_all_quotes,container,false);
+        View rootView = inflater.inflate(R.layout.fragment_quotes_list,container,false);
 
         RecyclerView rvAllQuotes = (RecyclerView) rootView.findViewById(R.id.rv_all_quotes);
         final AllQuotesRecyclerAdapter rvAdapter = new AllQuotesRecyclerAdapter(getActivity(),quotesCursor);
@@ -99,5 +112,6 @@ public class AllQuotes extends Fragment {
                     + " must implement OnCardContentClickedListener");
         }
     }
+
 
 }

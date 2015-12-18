@@ -1,6 +1,7 @@
 package com.android.people.quotesandroidapp.adapters;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,8 +12,8 @@ import android.widget.TextView;
 
 import com.android.people.quotesandroidapp.R;
 import com.android.people.quotesandroidapp.provider.quotes.QuotesCursor;
+import com.android.people.quotesandroidapp.utils.BaseCursorRecyclerAdapter;
 import com.android.people.quotesandroidapp.utils.DatabaseUtils;
-import com.android.people.quotesandroidapp.utils.QuotesCursorRecyclerAdapter;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -20,7 +21,7 @@ import butterknife.ButterKnife;
 /**
  * Created by rashwan on 12/14/15.
  */
-public class AllQuotesRecyclerAdapter extends QuotesCursorRecyclerAdapter<AllQuotesRecyclerAdapter.SimpleViewHolder>{
+public class AllQuotesRecyclerAdapter extends BaseCursorRecyclerAdapter<AllQuotesRecyclerAdapter.SimpleViewHolder> {
 
     public Context mContext;
 
@@ -43,12 +44,21 @@ public class AllQuotesRecyclerAdapter extends QuotesCursorRecyclerAdapter<AllQuo
     }
 
     @Override
-    public void onBindViewHolder(SimpleViewHolder holder, QuotesCursor cursor) {
+    public AllQuotesRecyclerAdapter.SimpleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        String quoteContent = cursor.getContent();
-        String quoteCategory = cursor.getCategoriesCategory();
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        View contactView = inflater.inflate(R.layout.home_first_category_card, parent, false);
+
+        return new SimpleViewHolder(contactView);
+    }
+
+    @Override
+    public void onBindViewHolder(SimpleViewHolder holder, Cursor cursor) {
+        QuotesCursor quotesCursor = (QuotesCursor) cursor;
+        String quoteContent = quotesCursor.getContent();
+        String quoteCategory = quotesCursor.getCategoriesCategory();
         Boolean quoteFavorite;
-        Long quoteId = cursor.getId();
+        Long quoteId = quotesCursor.getId();
 
         //Check if the quote is favorite to set the Button state
         quoteFavorite = DatabaseUtils.isQuoteFavorite(mContext,quoteId);
@@ -56,18 +66,6 @@ public class AllQuotesRecyclerAdapter extends QuotesCursorRecyclerAdapter<AllQuo
         holder.cardContent.setText(quoteContent);
         holder.cardCategory.setText(quoteCategory);
         holder.cardFavorite.setText(quoteFavorite.toString());
-    }
-
-
-
-    @Override
-    public AllQuotesRecyclerAdapter.SimpleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final Context context = parent.getContext();
-
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View contactView = inflater.inflate(R.layout.home_first_category_card, parent, false);
-
-        return new SimpleViewHolder(contactView);
     }
 
 

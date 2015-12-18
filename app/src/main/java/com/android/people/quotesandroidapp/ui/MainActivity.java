@@ -94,14 +94,14 @@ public class MainActivity extends AppCompatActivity
                 fragmentClass = Home.class;
                 break;
             case R.id.nav_all_quotes:
-                fragmentClass = AllQuotes.class;
+                fragmentClass = QuotesListFragment.class;
                 break;
             case R.id.nav_favorites:
                 Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
 
                 break;
             case R.id.nav_categories:
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
+                fragmentClass = CategoriesFragment.class;
 
                 break;
             case R.id.nav_settings:
@@ -117,7 +117,6 @@ public class MainActivity extends AppCompatActivity
                 break;
 
         }
-
         try {
             fragment = (Fragment) fragmentClass.newInstance();
         } catch (Exception e) {
