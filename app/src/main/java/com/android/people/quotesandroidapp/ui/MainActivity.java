@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.android.people.quotesandroidapp.R;
 import com.android.people.quotesandroidapp.utils.QuoteClickListener;
@@ -97,19 +96,19 @@ public class MainActivity extends AppCompatActivity
                 fragmentClass = AllQuotes.class;
                 break;
             case R.id.nav_favorites:
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
-
+                // TODO
                 break;
             case R.id.nav_categories:
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
-
+                //TODO
                 break;
             case R.id.nav_settings:
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
 
+                Intent i = new Intent(this, SettingsActivity.class);
+                startActivity(i);
                 break;
+
             case R.id.nav_about:
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
+                //TODO
 
                 break;
             default:
@@ -126,7 +125,9 @@ public class MainActivity extends AppCompatActivity
 
         // Insert the chosen fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.main_activity_fragment_container, fragment).commit();
+        if (fragment != null) {
+            fragmentManager.beginTransaction().replace(R.id.main_activity_fragment_container, fragment).commit();
+        }
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
