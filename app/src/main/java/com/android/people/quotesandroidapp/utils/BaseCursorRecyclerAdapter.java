@@ -28,21 +28,20 @@ import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 
 import com.android.people.quotesandroidapp.provider.quotes.QuotesColumns;
-import com.android.people.quotesandroidapp.provider.quotes.QuotesCursor;
 
 /**
  * Created by rashwan on 12/14/15.
  */
-public abstract class QuotesCursorRecyclerAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH>{
+public abstract class BaseCursorRecyclerAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH>{
     protected boolean mDataValid;
-    protected QuotesCursor mCursor;
+    protected Cursor mCursor;
     protected int mRowIDColumn;
 
-    public QuotesCursorRecyclerAdapter(QuotesCursor c) {
+    public BaseCursorRecyclerAdapter(Cursor c) {
         init(c);
     }
 
-    private void init(QuotesCursor c) {
+    private void init(Cursor c) {
         boolean cursorPresent = c != null;
         mCursor = c;
         mDataValid = cursorPresent;
@@ -62,9 +61,9 @@ public abstract class QuotesCursorRecyclerAdapter<VH extends RecyclerView.ViewHo
         onBindViewHolder(holder, mCursor);
     }
 
-    public abstract void onBindViewHolder(VH holder, QuotesCursor cursor) ;
+    public abstract void onBindViewHolder(VH holder, Cursor cursor) ;
 
-    public QuotesCursor getCursor(){return mCursor;}
+    public Cursor getCursor(){return mCursor;}
 
     @Override
     public int getItemCount() {
