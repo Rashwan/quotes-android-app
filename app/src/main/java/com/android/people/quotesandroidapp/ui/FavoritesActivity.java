@@ -10,33 +10,24 @@ import com.android.people.quotesandroidapp.R;
 import com.android.people.quotesandroidapp.utils.CategoryClickListener;
 import com.android.people.quotesandroidapp.utils.QuoteClickListener;
 
-public class QuotesOfACategory extends AppCompatActivity implements QuoteClickListener,CategoryClickListener{
+public class FavoritesActivity extends AppCompatActivity implements QuoteClickListener,CategoryClickListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_quotes_of_acategory);
+        setContentView(R.layout.activity_favorites);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = getIntent();
 
         //Received an intent to open quotes of a specific category
         if (intent != null){
-            int categoryNumber = intent.getIntExtra("Name",1);
 
             FragmentManager fragmentManager = getSupportFragmentManager();
-            QuotesListFragment quotesListFragment = QuotesListFragment.newInstance(QuotesListFragment.TYPE_CATEGORIES,categoryNumber);
-            fragmentManager.beginTransaction().add(R.id.quotes_category_content,quotesListFragment).commit();
+            QuotesListFragment quotesListFragment = QuotesListFragment.newInstance(QuotesListFragment.TYPE_FAVORITES);
+            fragmentManager.beginTransaction().add(R.id.favorites_content,quotesListFragment).commit();
         }
-    }
-
-    @Override
-    public void onQuoteClicked(long quoteID) {
-        Intent intent = new Intent(this, SingleQuoteActivity.class);
-        intent.putExtra("QUOTE_ID", quoteID);
-        startActivity(intent);
     }
 
     @Override
@@ -44,6 +35,13 @@ public class QuotesOfACategory extends AppCompatActivity implements QuoteClickLi
         Intent intent = new Intent(this,QuotesOfACategory.class);
         intent.putExtra("Type",QuotesListFragment.TYPE_CATEGORIES);
         intent.putExtra("Name",catID);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onQuoteClicked(long quoteID) {
+        Intent intent = new Intent(this, SingleQuoteActivity.class);
+        intent.putExtra("QUOTE_ID", quoteID);
         startActivity(intent);
     }
 }

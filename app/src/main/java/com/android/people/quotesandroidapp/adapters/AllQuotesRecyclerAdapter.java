@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.android.people.quotesandroidapp.R;
 import com.android.people.quotesandroidapp.provider.quotes.QuotesCursor;
+import com.android.people.quotesandroidapp.provider.status.StatusCursor;
 import com.android.people.quotesandroidapp.utils.BaseCursorRecyclerAdapter;
 import com.android.people.quotesandroidapp.utils.DatabaseUtils;
 
@@ -39,7 +40,7 @@ public class AllQuotesRecyclerAdapter extends BaseCursorRecyclerAdapter<AllQuote
         mListener = listener;
     }
 
-    public AllQuotesRecyclerAdapter(Context context,QuotesCursor c){
+    public AllQuotesRecyclerAdapter(Context context,Cursor c){
         super(c);
         mContext = context;
     }
@@ -55,14 +56,25 @@ public class AllQuotesRecyclerAdapter extends BaseCursorRecyclerAdapter<AllQuote
 
     @Override
     public void onBindViewHolder(SimpleViewHolder holder, Cursor cursor) {
-        QuotesCursor quotesCursor = (QuotesCursor) cursor;
-        String quoteContent = quotesCursor.getContent();
-        String quoteCategory = quotesCursor.getCategoriesCategory();
-        Boolean quoteFavorite;
-        Long quoteId = quotesCursor.getId();
+        QuotesCursor quotesCursor = null;
+        StatusCursor statusCursor = null;
+        String quoteContent = null;
+        String quoteCategory = null;
+        Boolean quoteFavorite = false;
+        Long quoteId = null;
+        if (cursor instanceof QuotesCursor){
+            quotesCursor = (QuotesCursor) cursor;
+            quoteContent = quotesCursor.getContent();
+            quoteCategory = quotesCursor.getCategoriesCategory();
+            quoteId = quotesCursor.getId();
+            quoteFavorite = DatabaseUtils.isQuoteFavorite(mContext, quoteId);
 
-        //Check if the quote is favorite to set the Button state
-        quoteFavorite = DatabaseUtils.isQuoteFavorite(mContext,quoteId);
+        }else if (cursor instanceof StatusCursor){
+            statusCursor = (StatusCursor) cursor;
+            quoteContent = statusCursor.getQuotesContent();
+            quoteCategory = statusCursor.getQuotesCategoriesCategory();
+            quoteFavorite = true;
+        }
 
         holder.cardContent.setText(quoteContent);
         holder.cardCategory.setText(quoteCategory);

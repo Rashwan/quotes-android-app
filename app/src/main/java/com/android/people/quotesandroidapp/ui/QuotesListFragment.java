@@ -1,6 +1,7 @@
 package com.android.people.quotesandroidapp.ui;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,7 +13,8 @@ import android.widget.Button;
 
 import com.android.people.quotesandroidapp.R;
 import com.android.people.quotesandroidapp.adapters.AllQuotesRecyclerAdapter;
-import com.android.people.quotesandroidapp.provider.quotes.QuotesCursor;
+import com.android.people.quotesandroidapp.provider.quotes.QuotesColumns;
+import com.android.people.quotesandroidapp.provider.status.StatusColumns;
 import com.android.people.quotesandroidapp.utils.CategoryClickListener;
 import com.android.people.quotesandroidapp.utils.DatabaseUtils;
 import com.android.people.quotesandroidapp.utils.QuoteClickListener;
@@ -28,7 +30,8 @@ public class QuotesListFragment extends Fragment {
     private static final String TAG = QuotesListFragment.class.getSimpleName();
     public static final int TYPE_QUOTES = 1;
     public static final int TYPE_CATEGORIES = 2;
-    private QuotesCursor quotesCursor;
+    public static final int TYPE_FAVORITES = 3;
+    private Cursor quotesCursor;
     private QuoteClickListener mQuoteListener;
     private CategoryClickListener mCategoryListener;
     @Bind(R.id.rv_all_quotes) RecyclerView rvAllQuotes;
@@ -37,19 +40,19 @@ public class QuotesListFragment extends Fragment {
 
     public QuotesListFragment(){}
 
-    public static QuotesListFragment newInstance() {
+    public static QuotesListFragment newInstance(int type) {
         Bundle args = new Bundle();
         QuotesListFragment fragment = new QuotesListFragment();
-        args.putInt("Type", TYPE_QUOTES);
+        args.putInt("Type", type);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static QuotesListFragment newInstance(int categoryId) {
+    public static QuotesListFragment newInstance(int type,int categoryId) {
 
         Bundle args = new Bundle();
         QuotesListFragment fragment = new QuotesListFragment();
-        args.putInt("Type", TYPE_CATEGORIES);
+        args.putInt("Type", type);
         args.putInt("CatId", categoryId);
         fragment.setArguments(args);
         return fragment;
@@ -115,15 +118,19 @@ public class QuotesListFragment extends Fragment {
         ButterKnife.unbind(this);
     }
 
-    private QuotesCursor initCursors(){
+    private Cursor initCursors(){
         if (getArguments() != null) {
+
             //If the request is from CategoriesFragment to show all quotes of a specific category
             if (getArguments().getInt("Type") == TYPE_CATEGORIES && getArguments().containsKey("CatId")) {
                 quotesCursor = DatabaseUtils.getQuotesForACategory(getActivity(), getArguments().getInt("CatId", 1));
 
             //If the request is to show all quotes from all categories
-            } else {
+            } else if(getArguments().getInt("Type") == TYPE_FAVORITES){
+                quotesCursor = DatabaseUtils.getFavoriteQuotes(getActivity());
+            }else {
                 quotesCursor = DatabaseUtils.getAllQuotesWithCategories(getActivity());
+
             }
         }
         return quotesCursor;
@@ -152,8 +159,17 @@ public class QuotesListFragment extends Fragment {
                 //Card content behavior
                 @Override
                 public void onContentClicked(int position) {
+                    Long quoteId;
                     if (mQuoteListener != null) {
-                        Long quoteId = rvAdapter.getItemId(position);
+
+                        //if We are in Favorites get the quoteID from StatusColumns.QUOTEID not _id
+                        if (getArguments().getInt("Type") == TYPE_FAVORITES) {
+                            quoteId = (long) rvAdapter.getSpecialId(position, StatusColumns.QUOTEID);
+
+                        //if we are anywhere else get the quoteID as usual
+                        } else {
+                            quoteId = rvAdapter.getItemId(position);
+                        }
                         mQuoteListener.onQuoteClicked(quoteId);
                     }
                 }
@@ -162,7 +178,7 @@ public class QuotesListFragment extends Fragment {
                 @Override
                 public void onCardCategoryClicked(int position) {
                     if (mCategoryListener != null && getArguments().getInt("Type") != TYPE_CATEGORIES) {
-                        int categoryId = rvAdapter.getQuoteCategoryId(position);
+                        int categoryId = rvAdapter.getSpecialId(position, QuotesColumns.CATEGORYID);
                         mCategoryListener.onCategoryClicked(categoryId);
                     }
                 }

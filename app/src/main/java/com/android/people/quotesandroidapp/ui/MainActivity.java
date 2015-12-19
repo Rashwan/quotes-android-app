@@ -94,10 +94,12 @@ public class MainActivity extends AppCompatActivity
                 fragment = Home.newInstance();
                 break;
             case R.id.nav_all_quotes:
-                fragment = QuotesListFragment.newInstance();
+                fragment = QuotesListFragment.newInstance(QuotesListFragment.TYPE_QUOTES);
                 break;
             case R.id.nav_favorites:
-                // TODO
+//                Intent intent = new Intent(this,FavoritesActivity.class);
+//                startActivity(intent);
+                fragment = QuotesListFragment.newInstance(QuotesListFragment.TYPE_FAVORITES);
                 break;
             case R.id.nav_categories:
                 fragment = CategoriesFragment.newInstance();

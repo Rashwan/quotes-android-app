@@ -167,6 +167,16 @@ public class DatabaseUtils {
 
     }
 
+    public static StatusCursor getFavoriteQuotes(Context context){
+        StatusCursor statusCursor;
+        StatusSelection where = new StatusSelection();
+
+        where.favorite(true);
+        String[] projection = {StatusColumns._ID,StatusColumns.QUOTEID,QuotesColumns.CONTENT,QuotesColumns.CATEGORYID,CategoriesColumns.CATEGORY};
+        statusCursor = where.query(context,projection);
+        return statusCursor;
+    }
+
 }
 
 
