@@ -13,8 +13,12 @@ import android.widget.Button;
 import com.android.people.quotesandroidapp.R;
 import com.android.people.quotesandroidapp.adapters.AllQuotesRecyclerAdapter;
 import com.android.people.quotesandroidapp.provider.quotes.QuotesCursor;
+import com.android.people.quotesandroidapp.utils.CategoryClickListener;
 import com.android.people.quotesandroidapp.utils.DatabaseUtils;
 import com.android.people.quotesandroidapp.utils.QuoteClickListener;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Created by rashwan on 12/14/15.
@@ -22,26 +26,31 @@ import com.android.people.quotesandroidapp.utils.QuoteClickListener;
 public class QuotesListFragment extends Fragment {
 
     private static final String TAG = QuotesListFragment.class.getSimpleName();
-    private QuotesCursor quotesCursor;
-    private QuoteClickListener mListener;
     public static final int TYPE_QUOTES = 1;
     public static final int TYPE_CATEGORIES = 2;
-
+    private QuotesCursor quotesCursor;
+    private QuoteClickListener mQuoteListener;
+    private CategoryClickListener mCategoryListener;
+    @Bind(R.id.rv_all_quotes) RecyclerView rvAllQuotes;
+    AllQuotesRecyclerAdapter rvAdapter = null;
 
 
     public QuotesListFragment(){}
 
     public static QuotesListFragment newInstance() {
-
-        return new QuotesListFragment();
+        Bundle args = new Bundle();
+        QuotesListFragment fragment = new QuotesListFragment();
+        args.putInt("Type", TYPE_QUOTES);
+        fragment.setArguments(args);
+        return fragment;
     }
 
-    public static QuotesListFragment newInstance(int type,int categoryId) {
+    public static QuotesListFragment newInstance(int categoryId) {
 
         Bundle args = new Bundle();
         QuotesListFragment fragment = new QuotesListFragment();
-        args.putInt("Type",type);
-        args.putInt("CatId",categoryId);
+        args.putInt("Type", TYPE_CATEGORIES);
+        args.putInt("CatId", categoryId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -49,55 +58,29 @@ public class QuotesListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null){
-
-            if (getArguments().getInt("Type") == TYPE_CATEGORIES && getArguments().containsKey("CatId")){
-                quotesCursor = DatabaseUtils.getQuotesForACategory(getActivity(),getArguments().getInt("CatId", 1));
-            }
-        }else {
-            quotesCursor = DatabaseUtils.getAllQuotesWithCategories(getActivity());
-        }
+        rvAdapter = new AllQuotesRecyclerAdapter(getActivity(),initCursors());
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        implementListeners();
+    }
+
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_quotes_list,container,false);
+        View rootView = inflater.inflate(R.layout.fragment_quotes_list, container,false);
 
-        RecyclerView rvAllQuotes = (RecyclerView) rootView.findViewById(R.id.rv_all_quotes);
-        final AllQuotesRecyclerAdapter rvAdapter = new AllQuotesRecyclerAdapter(getActivity(),quotesCursor);
-
+        ButterKnife.bind(this, rootView);
         rvAllQuotes.setAdapter(rvAdapter);
+
         rvAllQuotes.setLayoutManager(new LinearLayoutManager(getActivity()));
         //To Improve Performance
         rvAllQuotes.setHasFixedSize(true);
         //To Disable blink animation in notifyItemChanged
         rvAllQuotes.getItemAnimator().setChangeDuration(0);
 
-        //Implement behavior of each clicked Item
-        rvAdapter.setOnCardClickListener(new AllQuotesRecyclerAdapter.OnCardClickListener() {
-            //Favorite button behavior
-            @Override
-            public void onFavoriteClicked(Button fav, int position) {
-                Long quoteId = rvAdapter.getItemId(position);
-
-                //If the quote is already favorited remove it otherwise add it
-                if (DatabaseUtils.isQuoteFavorite(getActivity(), quoteId)) {
-                    DatabaseUtils.removeFromFavorites(quoteId, getActivity());
-                } else {
-                    DatabaseUtils.addToFavorites(quoteId, getActivity());
-                }
-                rvAdapter.notifyItemChanged(position);
-            }
-
-            //Card content behavior
-            @Override
-            public void onContentClicked(int position) {
-                if (mListener != null){
-                    Long quoteId = rvAdapter.getItemId(position);
-                    mListener.onQuoteClicked(quoteId);
-                }
-            }
-        });
         return rootView;
     }
 
@@ -106,12 +89,84 @@ public class QuotesListFragment extends Fragment {
         super.onAttach(context);
         //Attach listener from the activity
         if (context instanceof QuoteClickListener) {
-            mListener = (QuoteClickListener) context;
+            mQuoteListener = (QuoteClickListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnCardContentClickedListener");
+                    + " must implement QuoteClickListener");
+        }
+        if (context instanceof CategoryClickListener){
+            mCategoryListener = (CategoryClickListener) context;
+        }else {
+            throw new RuntimeException(context.toString()
+                    + " must implement CategoryClickListener");
         }
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCategoryListener = null;
+        mQuoteListener = null;
+    }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
+
+    private QuotesCursor initCursors(){
+        if (getArguments() != null) {
+            //If the request is from CategoriesFragment to show all quotes of a specific category
+            if (getArguments().getInt("Type") == TYPE_CATEGORIES && getArguments().containsKey("CatId")) {
+                quotesCursor = DatabaseUtils.getQuotesForACategory(getActivity(), getArguments().getInt("CatId", 1));
+
+            //If the request is to show all quotes from all categories
+            } else {
+                quotesCursor = DatabaseUtils.getAllQuotesWithCategories(getActivity());
+            }
+        }
+        return quotesCursor;
+    }
+
+    private void implementListeners(){
+        if (rvAdapter != null) {
+
+            //Implement behavior of each clicked Item
+            rvAdapter.setOnCardClickListener(new AllQuotesRecyclerAdapter.OnCardClickListener() {
+
+                //Favorite button behavior
+                @Override
+                public void onFavoriteClicked(Button fav, int position) {
+                    Long quoteId = rvAdapter.getItemId(position);
+
+                    //If the quote is already favorited remove it otherwise add it
+                    if (DatabaseUtils.isQuoteFavorite(getActivity(), quoteId)) {
+                        DatabaseUtils.removeFromFavorites(quoteId, getActivity());
+                    } else {
+                        DatabaseUtils.addToFavorites(quoteId, getActivity());
+                    }
+                    rvAdapter.notifyItemChanged(position);
+                }
+
+                //Card content behavior
+                @Override
+                public void onContentClicked(int position) {
+                    if (mQuoteListener != null) {
+                        Long quoteId = rvAdapter.getItemId(position);
+                        mQuoteListener.onQuoteClicked(quoteId);
+                    }
+                }
+
+                //Card category behavior if it's not already showing all quotes of a specific category
+                @Override
+                public void onCardCategoryClicked(int position) {
+                    if (mCategoryListener != null && getArguments().getInt("Type") != TYPE_CATEGORIES) {
+                        int categoryId = rvAdapter.getQuoteCategoryId(position);
+                        mCategoryListener.onCategoryClicked(categoryId);
+                    }
+                }
+            });
+        }
+    }
 }

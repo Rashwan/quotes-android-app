@@ -31,6 +31,7 @@ public class AllQuotesRecyclerAdapter extends BaseCursorRecyclerAdapter<AllQuote
     public interface OnCardClickListener{
         void onFavoriteClicked(Button fav,int position);
         void onContentClicked(int position);
+        void onCardCategoryClicked(int position);
     }
 
 
@@ -81,6 +82,7 @@ public class AllQuotesRecyclerAdapter extends BaseCursorRecyclerAdapter<AllQuote
             //Set OnClickListeners for each item in the card
             cardFavorite.setOnClickListener(this);
             itemView.setOnClickListener(this);
+            cardCategory.setOnClickListener(this);
         }
 
         //call the listener method based on the type of the clicked item
@@ -90,8 +92,9 @@ public class AllQuotesRecyclerAdapter extends BaseCursorRecyclerAdapter<AllQuote
 
                 if (v instanceof Button) {
                     mListener.onFavoriteClicked((Button) v, getLayoutPosition());
-
-                }else if (v instanceof CardView) {
+                } else if (v instanceof TextView) {
+                    mListener.onCardCategoryClicked(getLayoutPosition());
+                } else if (v instanceof CardView) {
                     mListener.onContentClicked(getLayoutPosition());
                 }
             }

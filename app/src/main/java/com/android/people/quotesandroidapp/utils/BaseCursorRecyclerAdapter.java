@@ -36,6 +36,7 @@ public abstract class BaseCursorRecyclerAdapter<VH extends RecyclerView.ViewHold
     protected boolean mDataValid;
     protected Cursor mCursor;
     protected int mRowIDColumn;
+    protected int mRowCategoryIDColumn;
 
     public BaseCursorRecyclerAdapter(Cursor c) {
         init(c);
@@ -46,6 +47,7 @@ public abstract class BaseCursorRecyclerAdapter<VH extends RecyclerView.ViewHold
         mCursor = c;
         mDataValid = cursorPresent;
         mRowIDColumn = cursorPresent ? c.getColumnIndex(QuotesColumns._ID) : -1;
+        mRowCategoryIDColumn = cursorPresent ? c.getColumnIndex(QuotesColumns.CATEGORYID) : -1;
         setHasStableIds(true);
     }
 
@@ -84,6 +86,18 @@ public abstract class BaseCursorRecyclerAdapter<VH extends RecyclerView.ViewHold
             }
         }else {
             return RecyclerView.NO_ID;
+        }
+    }
+
+    public int getQuoteCategoryId(int position) {
+        if (hasStableIds() && mDataValid && mCursor != null){
+            if (mCursor.moveToPosition(position)){
+                return mCursor.getInt(mRowCategoryIDColumn);
+            }else {
+                return (int)RecyclerView.NO_ID;
+            }
+        }else {
+            return (int)RecyclerView.NO_ID;
         }
     }
 

@@ -74,7 +74,7 @@ public class DatabaseUtils {
         QuotesCursor quotesCursor;
 
         where = new QuotesSelection();
-        String[] projection = {QuotesColumns._ID, QuotesColumns.CONTENT, CategoriesColumns.CATEGORY};
+        String[] projection = {QuotesColumns._ID, QuotesColumns.CONTENT,QuotesColumns.CATEGORYID,CategoriesColumns.CATEGORY};
         quotesCursor = where.query(context.getContentResolver(), projection);
 
         return quotesCursor;
@@ -160,7 +160,7 @@ public class DatabaseUtils {
         QuotesSelection where = new QuotesSelection();
 
         where.categoryid(categoryId);
-        String[] projection = {QuotesColumns._ID, QuotesColumns.CONTENT, CategoriesColumns.CATEGORY};
+        String[] projection = {QuotesColumns._ID, QuotesColumns.CONTENT, QuotesColumns.CATEGORYID,CategoriesColumns.CATEGORY};
         quotesCursor = where.query(context,projection);
 
         return quotesCursor;

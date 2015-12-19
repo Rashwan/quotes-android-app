@@ -85,26 +85,22 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
 
         Fragment fragment = null;
-        Class fragmentClass = null;
 
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-
         switch (id) {
             case R.id.nav_home:
-                fragmentClass = Home.class;
+                fragment = Home.newInstance();
                 break;
             case R.id.nav_all_quotes:
-                fragmentClass = QuotesListFragment.class;
+                fragment = QuotesListFragment.newInstance();
                 break;
             case R.id.nav_favorites:
                 // TODO
                 break;
             case R.id.nav_categories:
-                //TODO
-                fragmentClass = CategoriesFragment.class;
-
+                fragment = CategoriesFragment.newInstance();
                 break;
             case R.id.nav_settings:
 
@@ -117,14 +113,9 @@ public class MainActivity extends AppCompatActivity
 
                 break;
             default:
-                fragmentClass = Home.class;
+                fragment = Home.newInstance();
                 break;
 
-        }
-        try {
-            fragment = (Fragment) fragmentClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         // Insert the chosen fragment by replacing any existing fragment
@@ -148,8 +139,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onCategoryClicked(int catID) {
-        Fragment fragment = QuotesListFragment.newInstance(QuotesListFragment.TYPE_CATEGORIES, catID);
-        fragmentManager.beginTransaction().replace(R.id.main_activity_fragment_container, fragment).commit();
+        Intent intent = new Intent(this,QuotesOfACategory.class);
+        intent.putExtra("Name",catID);
+        startActivity(intent);
 
     }
 }

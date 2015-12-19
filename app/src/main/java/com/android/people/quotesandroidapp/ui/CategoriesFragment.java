@@ -1,13 +1,12 @@
 package com.android.people.quotesandroidapp.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,24 +16,18 @@ import com.android.people.quotesandroidapp.adapters.CategoriesRecyclerViewAdapte
 import com.android.people.quotesandroidapp.provider.categories.CategoriesCursor;
 import com.android.people.quotesandroidapp.utils.DatabaseUtils;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
+
 public class CategoriesFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String TAG = CategoriesFragment.class.getSimpleName();
     private int mColumnCount = 2;
     private CategoriesCursor categoriesCursor;
+    @Bind(R.id.rv_all_categories )RecyclerView rvAllCategories;
 
-
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public CategoriesFragment() {
     }
 
@@ -49,14 +42,11 @@ public class CategoriesFragment extends Fragment {
     }
 
     public static CategoriesFragment newInstance() {
-        Log.d(TAG, "newInstance");
-        CategoriesFragment fragment = new CategoriesFragment();
-        return fragment;
+        return new CategoriesFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
@@ -68,10 +58,9 @@ public class CategoriesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_categories, container, false);
 
-        RecyclerView rvAllCategories = (RecyclerView) view.findViewById(R.id.rv_all_categories);
+        ButterKnife.bind(this,view);
         CategoriesRecyclerViewAdapter adapter = new CategoriesRecyclerViewAdapter(getActivity(),categoriesCursor);
         if (mColumnCount <= 1) {
             rvAllCategories.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -86,9 +75,9 @@ public class CategoriesFragment extends Fragment {
             // and the category name
             @Override
             public void onCategoryClicked(int position) {
-                QuotesListFragment fragment = QuotesListFragment.newInstance(QuotesListFragment.TYPE_CATEGORIES, position + 1);
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                fragmentManager.beginTransaction().addToBackStack(null).replace(R.id.main_activity_fragment_container, fragment).commit();
+                Intent intent = new Intent(getActivity(),QuotesOfACategory.class);
+                intent.putExtra("Name",position+1);
+                getActivity().startActivity(intent);
             }
         });
 
@@ -98,9 +87,12 @@ public class CategoriesFragment extends Fragment {
 
     @Override
     public void onAttach(Context context) {
-        Log.d(TAG, "onAttach");
         super.onAttach(context);
-
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
 }
