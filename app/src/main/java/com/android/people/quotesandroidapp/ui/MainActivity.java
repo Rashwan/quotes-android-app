@@ -123,7 +123,8 @@ public class MainActivity extends AppCompatActivity
         // Insert the chosen fragment by replacing any existing fragment
         fragmentManager = getSupportFragmentManager();
         if (fragment != null) {
-            fragmentManager.beginTransaction().replace(R.id.main_activity_fragment_container, fragment).commit();
+            fragmentManager.beginTransaction().replace(R.id.main_activity_fragment_container, fragment)
+                    .addToBackStack("optional").commit();
         }
 
 
